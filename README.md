@@ -7,7 +7,8 @@ A Django REST API that serves an Iris flower classification model. This project 
 - RESTful API built with Django REST Framework
 - Machine Learning model (Logistic Regression) for Iris flower classification
 - Docker containerization for easy deployment
-- Model training script included
+- Automated model training and testing
+- Comprehensive test suite
 - Scalable architecture
 
 ## Prerequisites
@@ -24,46 +25,62 @@ git clone <your-repository-url>
 cd ai_classification_api
 ```
 
-2. Build and start the Docker container:
+2. Build and start the services:
 ```bash
+# Build the Docker images
 docker-compose build
-docker-compose up
+
+# Train the model and run tests
+docker-compose run test
+
+# Start the API service
+docker-compose up web
 ```
 
-The API will be available at `http://localhost:8000/api/predictor/`
+The API will be available at `http://localhost:8000/api/predict/`
 
-## Local Development Setup
+## Project Structure
 
-1. Create a virtual environment:
+```
+ai_classification_api/
+├── core/                   # Django project settings
+├── predictor/             # Main application
+│   ├── models_trained/    # Directory for trained ML models
+│   ├── management/        # Django management commands
+│   ├── tests.py          # Test suite
+│   ├── views.py          # API views
+│   ├── urls.py           # URL routing
+│   └── serializers.py    # Data serializers
+├── Dockerfile             # Docker configuration
+├── docker-compose.yml     # Docker Compose configuration
+├── requirements.txt       # Python dependencies
+├── train_model.py         # Model training script
+└── README.md             # This file
+```
+
+## Development Workflow
+
+### Running Tests
+Tests can be run in the Docker environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Run all tests with model training
+docker-compose run test
+
+# Run specific test modules
+docker-compose run test python manage.py test predictor.tests.ModelTests
+docker-compose run test python manage.py test predictor.tests.APITests
 ```
 
-2. Install dependencies:
+### Training the Model
+The model is automatically trained when running tests, but you can also train it separately:
 ```bash
-pip install -r requirements.txt
+docker-compose run web python train_model.py
 ```
 
-3. Train the model:
-```bash
-python train_model.py
-```
+### API Usage
 
-4. Run migrations:
-```bash
-python manage.py migrate
-```
-
-5. Start the development server:
-```bash
-python manage.py runserver
-```
-
-## API Endpoints
-
-### Prediction Endpoint
-- URL: `/api/predictor/predict/`
+#### Prediction Endpoint
+- URL: `/api/predict/`
 - Method: `POST`
 - Input Format:
 ```json
@@ -82,47 +99,40 @@ python manage.py runserver
 }
 ```
 
-## Project Structure
-
-```
-ai_classification_api/
-├── core/                   # Django project settings
-├── predictor/             # Main application
-├── models_trained/        # Trained model files
-├── Dockerfile             # Docker configuration
-├── docker-compose.yml     # Docker Compose configuration
-├── requirements.txt       # Python dependencies
-├── train_model.py         # Model training script
-└── README.md             # This file
-```
-
 ## Model Information
 
 The classification model:
-- Uses the Iris dataset
+- Uses the Iris dataset from scikit-learn
 - Implements Logistic Regression
 - Features: sepal length, sepal width, petal length, petal width
 - Classes: setosa, versicolor, virginica
 - Trained with 80/20 train/test split
+- Achieves ~96% accuracy on test set
 
-## Development
+## Docker Commands
 
-To make changes to the project:
-
-1. Create a new branch:
+Common Docker operations:
 ```bash
-git checkout -b feature/your-feature-name
-```
+# Build containers
+docker-compose build
 
-2. Make your changes and test them
+# Start services
+docker-compose up web
 
-3. Submit a pull request
+# Run with detached mode
+docker-compose up -d web
 
-## Testing
+# Stop services
+docker-compose down
 
-Run the tests with:
-```bash
-python manage.py test
+# View logs
+docker-compose logs web
+
+# Run tests
+docker-compose run test
+
+# Remove all containers and volumes
+docker-compose down -v
 ```
 
 ## Contributing
@@ -132,6 +142,19 @@ python manage.py test
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Testing
+
+The project includes comprehensive tests covering:
+- Model functionality
+- API endpoints
+- Data validation
+- Edge cases
+
+Run the full test suite with:
+```bash
+docker-compose run test
+```
 
 ## License
 

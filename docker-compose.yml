@@ -11,4 +11,15 @@ services:
     environment:
       - DEBUG=1
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,[::1]
-    restart: unless-stopped 
+    restart: unless-stopped
+
+  test:
+    build: .
+    command: >
+      bash -c "python train_model.py &&
+               python manage.py test predictor.tests --verbosity=2"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=core.settings 

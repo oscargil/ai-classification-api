@@ -4,8 +4,13 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+import os
 
 print("--- Starting Model Training ---")
+
+# Create models directory if it doesn't exist
+models_dir = os.path.join('predictor', 'models_trained')
+os.makedirs(models_dir, exist_ok=True)
 
 # 1. Load Dataset
 iris = load_iris()
@@ -34,12 +39,12 @@ accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy on the test set: {accuracy:.4f}") # Metric seen in Module 2
 
 # 5. Save Trained Model
-model_filename = 'iris_model.joblib'
+model_filename = os.path.join(models_dir, 'iris_model.joblib')
 joblib.dump(model, model_filename)
 print(f"Model saved as '{model_filename}'.")
 
 # Also save class names for use in the API
-class_names_filename = 'iris_class_names.joblib'
+class_names_filename = os.path.join(models_dir, 'iris_class_names.joblib')
 joblib.dump(target_names, class_names_filename)
 print(f"Class names saved as '{class_names_filename}'.")
 

@@ -1,9 +1,9 @@
 # core/urls.py
 from django.contrib import admin
-from django.urls import path, include # Make sure 'include' is imported
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Include the URLs from the predictor app under the 'api/predictor/' namespace
-    path('api/predictor/', include('predictor.urls')),
+    # Simplified API path
+    path('api/', include('predictor.urls')),
 ]

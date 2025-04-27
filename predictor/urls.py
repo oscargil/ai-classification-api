@@ -1,8 +1,8 @@
 # predictor/urls.py
 from django.urls import path
-from .views import PredictIrisView
+from .views import predict_iris
 
 urlpatterns = [
-    # Define the URL pattern for the prediction view
-    path('predict/', PredictIrisView.as_view(), name='predict_iris'),
+    # Simplified prediction endpoint
+    path('predict/', predict_iris, name='predict'),
 ]

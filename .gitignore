@@ -1,21 +1,56 @@
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environment
+# Virtual Environment
 venv/
-.env
+ENV/
+env/
 
-# Django stuff
-db.sqlite3
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Django
 *.log
-/static/
-/media/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+static/
 
-# OS files
+# Project specific
+iris_model.joblib
+iris_class_names.joblib
+predictor/models_trained/
+portfolio_entry.md
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Misc
 .DS_Store
-Thumbs.db
-
-# Model files (optional, depends if you want them in git)
-predictor/models_trained/*.joblib
+.env
+.env.local
+.env.*.local

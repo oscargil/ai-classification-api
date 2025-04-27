@@ -1,11 +1,11 @@
 # predictor/views.py
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 import joblib
 import os
 import numpy as np
-from .serializers import IrisFeaturesSerializer
+from .serializers import PredictionInputSerializer, PredictionOutputSerializer
 
 # Build paths to the model files dynamically
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,62 +26,36 @@ except Exception as e:
     class_names = None
     print(f"Error loading model or class names: {e}")
 
-
-class PredictIrisView(APIView):
+@api_view(['POST'])
+def predict_iris(request):
     """
-    API View to predict Iris species using the trained model.
-    Accepts POST requests with flower features.
+    Predict iris species from sepal and petal measurements
     """
-    def post(self, request, *args, **kwargs):
-        if model is None or class_names is None:
-             return Response(
-                {"error": "Model not loaded correctly. Check server logs."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        serializer = IrisFeaturesSerializer(data=request.data)
-        if serializer.is_valid():
-            # Get validated data
-            features = serializer.validated_data
-            # Convert to numpy array format expected by the model (2D array)
-            input_data = np.array([[
-                features['sepal_length'],
-                features['sepal_width'],
-                features['petal_length'],
-                features['petal_width']
-            ]])
-
-            try:
-                # Make prediction
-                prediction_index = model.predict(input_data) # Returns array [index]
-                predicted_class_name = class_names[prediction_index[0]]
-
-                # Optional: Get probabilities if the model supports it
-                try:
-                   probabilities = model.predict_proba(input_data)
-                   # Create a dictionary mapping class names to probabilities
-                   probability_dict = {name: prob for name, prob in zip(class_names, probabilities[0])}
-                except AttributeError:
-                    # Handle models that don't have predict_proba (like some SVMs)
-                    probability_dict = "Probabilities not available for this model type"
-
-
-                # Return result
-                return Response(
-                    {
-                        "predicted_species_index": int(prediction_index[0]), # Ensure index is int
-                        "predicted_species_name": predicted_class_name,
-                        "prediction_probabilities": probability_dict
-                    },
-                    status=status.HTTP_200_OK
-                )
-            except Exception as e:
-                 # Handle potential errors during prediction
-                 return Response(
-                    {"error": f"Prediction error: {e}"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-        else:
-            # Return validation errors
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Validate input
+    serializer = PredictionInputSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Prepare input data
+    features = np.array([[
+        serializer.validated_data['sepal_length'],
+        serializer.validated_data['sepal_width'],
+        serializer.validated_data['petal_length'],
+        serializer.validated_data['petal_width']
+    ]])
+    
+    # Make prediction
+    prediction = model.predict(features)[0]
+    probabilities = model.predict_proba(features)[0]
+    max_probability = max(probabilities)
+    
+    # Prepare response
+    output_data = {
+        'prediction': class_names[prediction],
+        'probability': float(max_probability)
+    }
+    
+    output_serializer = PredictionOutputSerializer(data=output_data)
+    if output_serializer.is_valid():
+        return Response(output_serializer.data)
+    return Response(output_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

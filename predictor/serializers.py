@@ -13,3 +13,13 @@ class IrisFeaturesSerializer(serializers.Serializer):
             if value < 0:
                 raise serializers.ValidationError(f"{key} must be non-negative.")
         return data
+
+class PredictionInputSerializer(serializers.Serializer):
+    sepal_length = serializers.FloatField(min_value=0)
+    sepal_width = serializers.FloatField(min_value=0)
+    petal_length = serializers.FloatField(min_value=0)
+    petal_width = serializers.FloatField(min_value=0)
+
+class PredictionOutputSerializer(serializers.Serializer):
+    prediction = serializers.CharField()
+    probability = serializers.FloatField()
