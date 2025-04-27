@@ -1,0 +1,21 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+
+# Django stuff
+db.sqlite3
+*.log
+/static/
+/media/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Model files (optional, depends if you want them in git)
+predictor/models_trained/*.joblib
