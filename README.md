@@ -156,10 +156,6 @@ Run the full test suite with:
 docker-compose run test
 ```
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Acknowledgments
 
 - Iris dataset from scikit-learn
